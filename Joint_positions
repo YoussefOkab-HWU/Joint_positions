@@ -1,0 +1,100 @@
+
+% uncomment the trajectory you want the spot leg to follow
+
+%trajectory 1
+% x_values = [0, -0.0375, -0.075, -0.1125, -0.15, -0.1875, -0.225, -0.2625, -0.2625, -0.225, -0.1875, -0.15, -0.1125, -0.075, -0.0375, 0];%x_coordinate
+% y_values = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0];
+% z_values =[0.3,0.325,0.35,0.375,0.4,0.425,0.45,0.475,0.475,0.45,0.425,0.4,0.375,0.35,0.325,0.3];
+
+%trajectory 2
+% x_values = [0, -0.0375, -0.075, -0.1125, -0.15, -0.1875, -0.225, -0.2625, -0.2625, -0.225, -0.1875, -0.15, -0.1125, -0.075, -0.0375, 0];%x_coordinate
+% y_values = [0, -0.0375, -0.075, -0.1125, -0.15, -0.1875, -0.225, -0.2625, -0.2625, -0.225, -0.1875, -0.15, -0.1125, -0.075, -0.0375, 0];
+% z_values =[0.3,0.325,0.35,0.375,0.4,0.425,0.45,0.475,0.475,0.45,0.425,0.4,0.375,0.35,0.325,0.3];
+
+%trajectory 3
+% x_values = [0, 0.0375, 0.075, 0.1125, 0.15, 0.1875, 0.225, 0.2625, 0.2625, 0.225, 0.1875, 0.15, 0.1125, 0.075, 0.0375, 0];%x_coordinate
+% y_values = [-0.2, -0.2375, -0.275, -0.3125, -0.35, -0.3875, -0.425, -0.4625, -0.4625, -0.425, -0.3875, -0.35, -0.3125, -0.275, -0.2375, -0.2];
+% z_values =[0.3,0.325,0.35,0.375,0.4,0.425,0.45,0.475,0.475,0.45,0.425,0.4,0.375,0.35,0.325,0.3];
+
+%trajectory 4
+% x_values = [0, -0.0275, -0.085, -0.1025, -0.14, -0.1645, -0.1900, -0.2425, -0.2625, -0.225, -0.1625, -0.13, -0.1025, -0.055, -0.0275, 0];%x_coordinate
+% y_values = [0, -0.0475, -0.065, -0.1225, -0.16, -0.1975, -0.235, -0.2825, -0.2425, -0.205, -0.1875, -0.14, -0.1225, -0.065, -0.0325, 0];
+% z_values =[0.3,0.315,0.345,0.368,0.42,0.435,0.46,0.475,0.485,0.465,0.445,0.42,0.370,0.355,0.335,0.3];
+
+
+time_step= 0.1;%set up the time step
+% Initialize new coordinates arrays with interpolated points
+num_segments = 1/time_step; %decide how many segments between each trajectory point.
+new_x_values = [];
+new_y_values = [];
+new_z_values = [];
+
+for i = 1:(length(x_values) - 1)
+    % % Interpolate between two consecutive points
+    x_interp = linspace(x_values(i), x_values(i+1), num_segments + 1);
+    y_interp = linspace(y_values(i), y_values(i+1), num_segments + 1);
+    z_interp = linspace(z_values(i), z_values(i+1), num_segments + 1);
+    
+    % Append the interpolated points to the new arrays
+    new_x_values = [new_x_values, x_interp(1:end-1)];
+    new_y_values = [new_y_values, y_interp(1:end-1)];
+    new_z_values = [new_z_values, z_interp(1:end-1)];
+end
+
+% Add the last point
+new_x_values = [new_x_values, x_values(end)];
+new_y_values = [new_y_values, y_values(end)];
+new_z_values = [new_z_values, z_values(end)];
+x_values = new_x_values;
+y_values = new_y_values;
+z_values = new_z_values;
+% Display or use the new coordinates as needed
+
+disp(x_values);
+disp(y_values);
+disp(z_values);
+th1_list = [];
+th2_list = [];
+th3_list = [];
+time_list= [];
+
+time = 0;
+%starting the loop for 16 to 160 positions (the x,y and z values)
+    for position = 1:length(x_values)
+        time = time + time_step;
+        %vtime = time;
+        disp("time is:")
+        disp(time)
+        x = x_values(position);
+        y = y_values(position);
+        z = z_values(position);
+        disp("position_values"); %print current position value
+        disp(x);
+        disp(y);
+        disp(z);
+        th = inversekinematics(x,y,z);% using the ineverse kinematic code to calculate the 3 joint angles to achieve the end effector position
+        disp("th is")
+        disp(th)
+        % Append the joint angles to their respective lists
+        th1_list = [th1_list; th(1)];
+        th2_list = [th2_list; th(2)];
+        th3_list = [th3_list; th(3)];
+        time_list = [time_list;time];
+        
+    end
+    %create a trajectory graph of the endeffector movement
+    figure;
+    scatter3(x_values, y_values, z_values, 'filled');
+    xlabel('X axis');
+    ylabel('Y axis');
+    zlabel('Z axis');
+    title('XYZ Points');
+    grid on;
+    %  disp("Joint Angles:");
+            disp("th1:");
+            disp(th1_list);
+            disp("th2:");
+            disp(th2_list);
+            disp("th3:");
+            disp(th3_list);
+        
